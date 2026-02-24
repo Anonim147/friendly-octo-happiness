@@ -14,14 +14,22 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
+      discussions: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Fetch master
-        run: git fetch origin master
+      - name: Checkout PR branch
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*$')
+          PR_BRANCH=$(gh pr view $PR_NUMBER --json headRefName -q .headRefName)
+          git fetch origin $PR_BRANCH
+          git checkout $PR_BRANCH
+          git fetch origin master
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -31,7 +39,7 @@ jobs:
           use_sticky_comment: true
           trigger_phrase: "proceed with review"
           prompt: |
-            Run `git fetch origin master && git diff $(git merge-base HEAD origin/master)...HEAD` to get all changes in this PR compared to master. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
+            Run `git diff origin/master...HEAD` to get all changes in this PR compared to master. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
 
             Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
 
