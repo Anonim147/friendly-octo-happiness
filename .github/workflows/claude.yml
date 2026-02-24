@@ -14,6 +14,17 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --max-turns 10
+            --append-system-prompt "After making changes, run backend tests with: dotnet test TravelGuideApi/TravelGuideApi.sln and frontend tests with: cd TravelGuideApi/Src/TravelGuideUI && npm install && npm test -- --watchAll=false. Report the test results in your PR comment."
