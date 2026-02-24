@@ -1,3 +1,5 @@
+using System;
+
 namespace TravelGuideApi.Domain.Models;
 
 /// <summary>
