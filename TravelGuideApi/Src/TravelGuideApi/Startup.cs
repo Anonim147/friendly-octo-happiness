@@ -76,10 +76,7 @@ public class Startup(
     {
         app.UseProblemDetails();
 
-        if (!_hostEnvironment.IsProduction())
-        {
-            app.UseSwaggerService();
-        }
+        app.UseSwaggerService();
 
 
 
