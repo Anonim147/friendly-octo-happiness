@@ -1,14 +1,10 @@
 name: Claude Auto Review
-
 on:
   issue_comment:
     types: [created]
-
 jobs:
   reviewer:
-    if: |
-      github.event.issue.pull_request != null &&
-      contains(github.event.comment.body, 'proceed with review')
+    if: github.event.issue.pull_request != null && contains(github.event.comment.body, 'proceed with review')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,21 +32,16 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.PAT_TOKEN }}
-          show_full_output: true
           use_sticky_comment: true
           trigger_phrase: "proceed with review"
           prompt: |
             Run `git diff origin/master...HEAD` to get all changes in this PR compared to master. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
-
             Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
-
             Always post one of these:
-
             If issues found in the changed lines:
             ## Code Review Results ❌
             [list only issues found in changed lines, with file name and line number]
             @claude please fix: [exact fixes needed]
-
             If changed lines look good:
             ## Code Review Results ✅
             Ready to merge. [one sentence summary of what changed]
@@ -58,23 +49,12 @@ jobs:
             --max-turns 10
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
 
-      - name: Post review comment
-        if: always()
+      - name: Post review comment (fallback)
+        if: always() && steps.claude.outputs.result != ''
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-          ISSUE_URL: ${{ github.event.issue.url }}
         run: |
-          PR_NUMBER=$(python3 -c "import os,re; print(re.search(r'\d+$', os.environ['ISSUE_URL']).group())")
-          echo "PR_NUMBER: $PR_NUMBER"
-          RESULT=$(python3 -c "
-          import json
-          with open('/home/runner/work/_temp/claude-execution-output.json') as f:
-              d = json.load(f)
-          print(d.get('result', ''))
-          " 2>&1)
-          echo "RESULT: $RESULT"
-          if [ -n "$RESULT" ]; then
-            gh pr comment "$PR_NUMBER" \
-              --repo "${{ github.repository }}" \
-              --body "$RESULT"
-          fi
+          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*$')
+          gh pr comment "$PR_NUMBER" \
+            --repo "${{ github.repository }}" \
+            --body "${{ steps.claude.outputs.result }}"
