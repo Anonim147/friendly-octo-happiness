@@ -1,6 +1,6 @@
 import { Country, CurrencyComparisonRequest, CurrencyComparisonResult } from '../types';
 
-const API_BASE_URL = '/api/v1';
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
 class ApiService {
   private async handleResponse<T>(response: Response): Promise<T> {

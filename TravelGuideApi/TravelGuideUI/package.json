@@ -2,6 +2,7 @@
   "name": "travel-guide-ui",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://Anonim147.github.io/friendly-octo-happiness",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
