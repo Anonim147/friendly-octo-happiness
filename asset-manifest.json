@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/friendly-octo-happiness/static/css/main.cca27999.css",
-    "main.js": "/friendly-octo-happiness/static/js/main.8297c62b.js",
+    "main.css": "/friendly-octo-happiness/static/css/main.40f481f3.css",
+    "main.js": "/friendly-octo-happiness/static/js/main.8b4d9a28.js",
     "index.html": "/friendly-octo-happiness/index.html",
-    "main.cca27999.css.map": "/friendly-octo-happiness/static/css/main.cca27999.css.map",
-    "main.8297c62b.js.map": "/friendly-octo-happiness/static/js/main.8297c62b.js.map"
+    "main.40f481f3.css.map": "/friendly-octo-happiness/static/css/main.40f481f3.css.map",
+    "main.8b4d9a28.js.map": "/friendly-octo-happiness/static/js/main.8b4d9a28.js.map"
   },
   "entrypoints": [
-    "static/css/main.cca27999.css",
-    "static/js/main.8297c62b.js"
+    "static/css/main.40f481f3.css",
+    "static/js/main.8b4d9a28.js"
   ]
 }
