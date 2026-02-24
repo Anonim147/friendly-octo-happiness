@@ -1,4 +1,4 @@
-import { Country, CurrencyComparisonRequest, CurrencyComparisonResult } from '../types';
+import { BudgetCalculateRequest, BudgetCalculationResult, Country, CurrencyComparisonRequest, CurrencyComparisonResult } from '../types';
 
 const API_BASE_URL = '/api/v1';
 
@@ -25,6 +25,17 @@ class ApiService {
       body: JSON.stringify(request),
     });
     return this.handleResponse<CurrencyComparisonResult>(response);
+  }
+
+  async calculateBudget(request: BudgetCalculateRequest): Promise<BudgetCalculationResult[]> {
+    const response = await fetch(`${API_BASE_URL}/budget/calculate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    return this.handleResponse<BudgetCalculationResult[]>(response);
   }
 }
 
