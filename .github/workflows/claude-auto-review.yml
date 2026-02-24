@@ -22,6 +22,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          show_full_output: true
           trigger_phrase: "proceed with review"
           prompt: |
             Run `git diff origin/master...HEAD` to get the exact changes in this PR. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
@@ -39,5 +40,5 @@ jobs:
             ## Code Review Results ✅
             Ready to merge. [one sentence summary of what changed]
           claude_args: |
-            --max-turns 30
+            --max-turns 20
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
