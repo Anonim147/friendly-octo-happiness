@@ -61,10 +61,11 @@ Key libraries: MediatR (CQRS), AutoMapper, FluentValidation, Serilog, Swashbuckl
 
 ### Phase 1: Before Starting Any Work
 1. `git checkout master`
-2. `git pull origin master`
-3. `dotnet build TravelGuideApi/TravelGuideApi.sln`
-4. `dotnet test TravelGuideApi/TravelGuideApi.sln`
-5. Confirm build and tests pass before proceeding. If they fail, fix the failure and proceed.
+2. `git reset --hard HEAD && git clean -fd`
+3. `git pull origin master`
+4. `dotnet build TravelGuideApi/TravelGuideApi.sln`
+5. `dotnet test TravelGuideApi/TravelGuideApi.sln`
+6. Confirm build and tests pass before proceeding. If they fail, fix the failure and proceed.
 
 ### Phase 2: Create a Feature Branch
 6. `git checkout -b feature/<short-descriptive-name>`
@@ -78,13 +79,8 @@ Key libraries: MediatR (CQRS), AutoMapper, FluentValidation, Serilog, Swashbuckl
 10. If build or tests fail, fix the issues before considering the task complete.
 11. Build and start an app. Use Playwright MCP to confirm visual changes.
 12. Report the final build and test status in your summary.
-13. Update Claude.md with new feature description
+13. Update CLAUDE.md only if the architecture or build & test commands have changed.
 14. Commit all changes.
 15. Push branch to origin and create a PR in Github.
 16. Pick one of the repository contributors and tag them as mandatory reviewer in PR.
 
-## Recent Features
-<!-- Updated automatically by post-hook after each feature request -->
-
-### Pet Photos on Home Page (2026-02-24)
-Added a `PetPhotos` component (`TravelGuideUI/src/components/PetPhotos/`) that fetches and displays a random cat photo (from thecatapi.com) and a random dog photo (from dog.ceo) on the home page above the Travel Comparison section. Also fixed a pre-existing failing unit test (`CountryGetAllQueryHandlerTests.Handle_Should_ReturnCachedCountries_WhenCacheHit`) that was missing its cache mock setup.
