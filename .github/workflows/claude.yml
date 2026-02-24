@@ -11,8 +11,6 @@ on:
 jobs:
   claude:
     runs-on: ubuntu-latest
-    if: |
-      !contains(github.event.comment.body, 'proceed with review')
     permissions:
       contents: write
       issues: write
