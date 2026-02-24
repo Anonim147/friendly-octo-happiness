@@ -65,6 +65,16 @@ public class Startup(
         services.AddApplication();
         services.AddPersistence();
 
+        services.AddCors(options =>
+        {
+            options.AddPolicy("GitHubPages", policy =>
+            {
+                policy.WithOrigins("https://anonim147.github.io")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+
         services.AddControllers();
 
         services.AddSwaggerService();
@@ -79,6 +89,8 @@ public class Startup(
         app.UseSwaggerService();
 
 
+
+        app.UseCors("GitHubPages");
 
         app.UseRouting();
 
