@@ -1,4 +1,3 @@
-
 name: Claude Auto Review
 
 on:
@@ -13,6 +12,7 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
+      discussions: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +20,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          show_full_output: true
           prompt: |
             Review all changed files in this PR. Always post a comment with your review results, even if changes are minor or non-code files.
             Check for: bugs, security issues, missing error handling, performance problems, code style.
