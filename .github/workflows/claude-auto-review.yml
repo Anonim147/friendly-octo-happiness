@@ -22,6 +22,10 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           show_full_output: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           prompt: |
             Review all changed files in this PR. Always post a comment with your review results, even if changes are minor or non-code files.
             Check for: bugs, security issues, missing error handling, performance problems, code style.
