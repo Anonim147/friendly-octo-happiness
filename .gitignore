@@ -1,0 +1,6 @@
+obj/
+.vs/
+bin/
+Bin/
+.vscode
+package-lock.json

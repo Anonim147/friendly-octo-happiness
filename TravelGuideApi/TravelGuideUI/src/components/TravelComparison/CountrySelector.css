@@ -1,0 +1,120 @@
+.country-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selector-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.label-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+}
+
+.label-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.selector-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selected-flag {
+  position: absolute;
+  left: 14px;
+  width: 24px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.selector-input {
+  width: 100%;
+  padding: 1rem 2.5rem 1rem 1rem;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.2s ease;
+}
+
+.selector-wrapper:has(.selected-flag) .selector-input {
+  padding-left: 3rem;
+}
+
+.selector-input:hover:not(:disabled) {
+  border-color: var(--text-secondary);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.selector-input:focus {
+  outline: none;
+  border-color: var(--text-secondary);
+  box-shadow: 0 0 0 4px var(--shadow-color);
+}
+
+.selector-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selector-arrow {
+  position: absolute;
+  right: 14px;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.selector-input:focus + .selector-arrow {
+  transform: rotate(180deg);
+}
+
+.selector-arrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+.currency-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.currency-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-mid) 100%);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.currency-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}

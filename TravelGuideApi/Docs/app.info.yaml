@@ -1,0 +1,37 @@
+ownerTeam: Orion
+
+# decide if your app is primary with this guide: https://justanswer.atlassian.net/wiki/spaces/Engineer/pages/114885084
+isPrimary: true/false
+
+# If your app is a part of a bigger subsystem, provide the name of the subsystem here
+# subsystem: some-subsystem-name
+
+applicationType:
+# Use this type if your app is an API consumed by other applications.
+- webapi
+# Use this type if your app serves HTML pages to users.
+# - website
+# Use this type if your app processes incoming events from a queue.
+# - listener
+# Use this type if your app runs scheduled jobs, typically triggered by a scheduler like Flux or Argo.
+# - task
+# Use this type if your app runs continuously and executes tasks at regular intervals.
+# - service
+# Use this type if your app routes or processes incoming requests, like Jate or a Cloudflare Worker.
+# - gateway
+
+# State the technology stack used in your app including unusual technologies. ex: net8.0, nodejs-20, python-3.10, react, nhibernate, entity-framework, some-other-uncommon-technology
+technology:
+- net8.0
+
+# If your app is a webapi, you can provide your API documentation link here
+# callReference: http://some-api.stg.justanswer.local/swagger/index.html
+
+# Is your app exposed to internet or called by any 3-rd party companies?
+isInternal: true/false
+
+# If your app is external, provide a list of 3-rd party companies that are calling your app in free format, for example:
+# externalCallers:
+# - some service
+# - another service
+

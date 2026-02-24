@@ -1,0 +1,34 @@
+parameters:
+- name: runTests
+  displayName: Run Tests?
+  type: boolean
+  default: true
+
+variables:
+  - group: PATgroup
+  - name: branchName
+    ${{ if eq(variables['Build.Reason'], 'PullRequest') }}:
+      value: $[replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/','')]
+    ${{ if ne(variables['Build.Reason'], 'PullRequest') }}:
+      value: $(Build.SourceBranchName)
+
+trigger:
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - TravelGuideApi
+
+resources:
+  repositories:
+    - repository: cicd
+      type: git
+      name: Dev/ja-cicdtemplate
+
+jobs:
+- template: templates/app.v2/build-pipeline.yml@cicd
+  parameters:
+    appRoot: "TravelGuideApi"
+    runTests: ${{ parameters.runTests }}
+    pipelineName: "TravelGuideApi"
