@@ -22,3 +22,23 @@ export interface CurrencyComparisonResult {
   strengthHint: string;
 }
 
+export interface BudgetCalculateRequest {
+  homeCurrency: string;
+  dailyBudget: number;
+  tripDays: number;
+  destinationCountries: string[];
+}
+
+export interface BudgetCalculationResult {
+  countryCode: string;
+  countryName: string;
+  destinationCurrency: string;
+  exchangeRate: number;
+  dailyBudgetHome: number;
+  tripDays: number;
+  totalBudgetHome: number;
+  totalBudgetLocal: number;
+  dailyLocalAmount: number;
+  dataFreshness: string;
+  rateTimestamp: string;
+}

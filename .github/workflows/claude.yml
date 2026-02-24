@@ -16,7 +16,11 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+<<<<<<< feat/trip-budget-calculator
+      
+=======
     
+>>>>>>> master
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
