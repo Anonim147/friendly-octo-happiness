@@ -62,14 +62,8 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-          CLAUDE_RESULT: ${{ steps.claude.outputs.result }}
         run: |
-          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*
-)
-          if [ -n "$CLAUDE_RESULT" ]; then
-            gh pr comment $PR_NUMBER \
-              --repo ${{ github.repository }} \
-              --body "$CLAUDE_RESULT"
-          else
-            echo "No result from Claude, skipping comment"
-          fi
+          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*$')
+          gh pr comment "$PR_NUMBER" \
+            --repo "${{ github.repository }}" \
+            --body "${{ steps.claude.outputs.conclusion }}"
