@@ -55,15 +55,21 @@ jobs:
             ## Code Review Results ✅
             Ready to merge. [one sentence summary of what changed]
           claude_args: |
-            --max-turns 20
+            --max-turns 10
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
 
       - name: Post review comment
         if: always()
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          CLAUDE_RESULT: ${{ steps.claude.outputs.result }}
         run: |
-          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*$')
-          gh pr comment $PR_NUMBER \
-            --repo ${{ github.repository }} \
-            --body "${{ steps.claude.outputs.conclusion }}"
+          PR_NUMBER=$(echo "${{ github.event.issue.url }}" | grep -o '[0-9]*
+)
+          if [ -n "$CLAUDE_RESULT" ]; then
+            gh pr comment $PR_NUMBER \
+              --repo ${{ github.repository }} \
+              --body "$CLAUDE_RESULT"
+          else
+            echo "No result from Claude, skipping comment"
+          fi
