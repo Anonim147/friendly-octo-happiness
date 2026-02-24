@@ -85,3 +85,6 @@ Key libraries: MediatR (CQRS), AutoMapper, FluentValidation, Serilog, Swashbuckl
 
 ## Recent Features
 <!-- Updated automatically by post-hook after each feature request -->
+
+### Pet Photos on Home Page (2026-02-24)
+Added a `PetPhotos` component (`TravelGuideUI/src/components/PetPhotos/`) that fetches and displays a random cat photo (from thecatapi.com) and a random dog photo (from dog.ceo) on the home page above the Travel Comparison section. Also fixed a pre-existing failing unit test (`CountryGetAllQueryHandlerTests.Handle_Should_ReturnCachedCountries_WhenCacheHit`) that was missing its cache mock setup.

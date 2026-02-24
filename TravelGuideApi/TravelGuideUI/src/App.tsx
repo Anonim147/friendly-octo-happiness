@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from './components/Header/Header';
 import TravelComparison from './components/TravelComparison/TravelComparison';
+import PetPhotos from './components/PetPhotos/PetPhotos';
 import './App.css';
 
 const App: React.FC = () => {
@@ -14,6 +15,7 @@ const App: React.FC = () => {
       <div className="app-content">
         <Header />
         <main className="main-content">
+          <PetPhotos />
           <TravelComparison />
         </main>
       </div>
