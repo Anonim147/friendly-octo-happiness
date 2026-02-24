@@ -17,6 +17,11 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch master
+        run: git fetch origin master
 
       - uses: anthropics/claude-code-action@v1
         with:
@@ -41,5 +46,5 @@ jobs:
             ## Code Review Results ✅
             Ready to merge. [one sentence summary of what changed]
           claude_args: |
-            --max-turns 20
+            --max-turns 10
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
