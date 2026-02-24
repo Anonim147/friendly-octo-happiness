@@ -3,44 +3,56 @@ name: Claude Auto Review
 on:
   pull_request:
     types: [opened, synchronize]
-  workflow_dispatch:
 
 jobs:
   reviewer:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
       pull-requests: write
-      discussions: write
-      id-token: write
+
     steps:
       - uses: actions/checkout@v4
-
-      - uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          show_full_output: true
-          direct_prompt: |
-            Run `git diff origin/master...HEAD` to get the exact changes in this PR. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
+          fetch-depth: 0
 
-            Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
+      - name: Get PR diff
+        id: diff
+        run: |
+          git fetch origin master
+          DIFF=$(git diff origin/master...HEAD -- '*.cs' '*.tsx' '*.ts' '*.json' | head -c 20000)
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-            Always post one of these:
+      - name: Review with Claude
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          DIFF="${{ steps.diff.outputs.diff }}"
+          
+          RESPONSE=$(curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "{
+              \"model\": \"claude-sonnet-4-6\",
+              \"max_tokens\": 1024,
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": \"You are a code reviewer for a .NET 8 + React project called TravelGuide. Review ONLY the following diff. Focus only on lines starting with +. Check for: bugs, security issues, missing error handling, performance problems. Be concise.\n\nIf issues found, respond with:\n## Code Review Results ❌\n[list issues with file and line]\n@claude please fix: [exact fixes]\n\nIf all good, respond with:\n## Code Review Results ✅\nReady to merge. [one sentence summary]\n\nDiff:\n$(echo "$DIFF" | sed 's/\"/\\\"/g' | head -c 15000)\"
+              }]
+            }")
+          
+          COMMENT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin)['content'][0]['text'])")
+          
+          echo "comment<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-            If issues found in the changed lines:
-            ## Code Review Results ❌
-            [list only issues found in changed lines, with file name and line number]
-            @claude please fix: [exact fixes needed]
-
-            If changed lines look good:
-            ## Code Review Results ✅
-            Ready to merge. [one sentence summary of what changed]
-          claude_args: |
-            --max-turns 10
-            --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
+      - name: Post comment to PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "${{ steps.review.outputs.comment }}"
