@@ -1,0 +1,36 @@
+name: Claude Auto Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  reviewer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review all changed files in this PR.
+            Check for: bugs, security issues, missing error handling, performance problems, code style.
+
+            If issues found, post:
+            ## Code Review Results ❌
+            [list issues]
+            @claude please fix: [exact fixes needed]
+
+            If all good, post:
+            ## Code Review Results ✅
+            Ready to merge. [brief summary]
+          claude_args: |
+            --max-turns 20
+            --append-system-prompt "You are a strict but fair senior code reviewer for a .NET 8 + React project called TravelGuide. Be specific and actionable. Do not request fixes for minor style issues. Maximum 2 review cycles - on the second review approve if no critical issues remain."
