@@ -21,25 +21,25 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          show_full_output: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           prompt: |
-            Review all changed files in this PR. Always post a comment with your review results, even if changes are minor or non-code files.
-            Check for: bugs, security issues, missing error handling, performance problems, code style.
+            Run `git diff origin/master...HEAD` to get the exact changes in this PR. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
+
+            Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
 
             Always post one of these:
 
-            If issues found:
+            If issues found in the changed lines:
             ## Code Review Results ❌
-            [list issues]
+            [list only issues found in changed lines, with file name and line number]
             @claude please fix: [exact fixes needed]
 
-            If all good (including non-code changes like README):
+            If changed lines look good:
             ## Code Review Results ✅
-            Ready to merge. [brief summary of what was changed]
+            Ready to merge. [one sentence summary of what changed]
           claude_args: |
-            --max-turns 20
-            --append-system-prompt "You are a strict but fair senior code reviewer for a .NET 8 + React project called TravelGuide. Be specific and actionable. Do not request fixes for minor style issues. Maximum 2 review cycles - on the second review approve if no critical issues remain."
+            --max-turns 10
+            --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
