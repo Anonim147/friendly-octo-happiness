@@ -1,7 +1,14 @@
 import React from 'react';
 import './Header.css';
 
-const Header: React.FC = () => {
+type View = 'comparison' | 'budget';
+
+interface HeaderProps {
+  activeView: View;
+  onNavigate: (view: View) => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ activeView, onNavigate }) => {
   return (
     <header className="header">
       <div className="header-content">
@@ -16,7 +23,18 @@ const Header: React.FC = () => {
           <span className="logo-text">Travel Guide</span>
         </div>
         <nav className="nav">
-          <span className="nav-badge">Currency Comparison</span>
+          <button
+            className={`nav-link ${activeView === 'comparison' ? 'nav-link-active' : ''}`}
+            onClick={() => onNavigate('comparison')}
+          >
+            Currency Comparison
+          </button>
+          <button
+            className={`nav-link ${activeView === 'budget' ? 'nav-link-active' : ''}`}
+            onClick={() => onNavigate('budget')}
+          >
+            Trip Budget Calculator
+          </button>
         </nav>
       </div>
     </header>
