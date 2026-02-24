@@ -29,5 +29,5 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
-            --max-turns 10
+            --max-turns 30
             --append-system-prompt "After making changes, run backend tests with: dotnet test TravelGuideApi/TravelGuideApi.sln and frontend tests with: cd TravelGuideApi/Src/TravelGuideUI && npm install && npm test -- --watchAll=false. Report the test results in your PR comment."
