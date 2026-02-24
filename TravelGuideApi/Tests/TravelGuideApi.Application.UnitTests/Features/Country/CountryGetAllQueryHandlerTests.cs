@@ -44,6 +44,10 @@ public class CountryGetAllQueryHandlerTests
             new() { Code = "GB", Name = "United Kingdom", CurrencyCode = "GBP" }
         };
 
+        _countryCacheMock
+            .Setup(c => c.GetAllAsync())
+            .ReturnsAsync(cachedCountries);
+
         var query = new CountryGetAllQuery();
 
         // Act
