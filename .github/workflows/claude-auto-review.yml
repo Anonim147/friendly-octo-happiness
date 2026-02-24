@@ -23,9 +23,10 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           show_full_output: true
+          use_sticky_comment: true
           trigger_phrase: "proceed with review"
           prompt: |
-            Run `git diff origin/master...HEAD` to get the exact changes in this PR. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
+            Run `git fetch origin master && git diff $(git merge-base HEAD origin/master)...HEAD` to get all changes in this PR compared to master. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
 
             Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
 
