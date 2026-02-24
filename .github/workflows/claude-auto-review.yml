@@ -1,3 +1,4 @@
+
 name: Claude Auto Review
 
 on:
@@ -20,17 +21,19 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Review all changed files in this PR.
+            Review all changed files in this PR. Always post a comment with your review results, even if changes are minor or non-code files.
             Check for: bugs, security issues, missing error handling, performance problems, code style.
 
-            If issues found, post:
+            Always post one of these:
+
+            If issues found:
             ## Code Review Results ❌
             [list issues]
             @claude please fix: [exact fixes needed]
 
-            If all good, post:
+            If all good (including non-code changes like README):
             ## Code Review Results ✅
-            Ready to merge. [brief summary]
+            Ready to merge. [brief summary of what was changed]
           claude_args: |
             --max-turns 20
             --append-system-prompt "You are a strict but fair senior code reviewer for a .NET 8 + React project called TravelGuide. Be specific and actionable. Do not request fixes for minor style issues. Maximum 2 review cycles - on the second review approve if no critical issues remain."
