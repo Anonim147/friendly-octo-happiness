@@ -39,5 +39,5 @@ jobs:
             ## Code Review Results ✅
             Ready to merge. [one sentence summary of what changed]
           claude_args: |
-            --max-turns 10
+            --max-turns 30
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
