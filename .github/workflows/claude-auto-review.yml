@@ -21,11 +21,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          prompt: |
+          show_full_output: true
+          direct_prompt: |
             Run `git diff origin/master...HEAD` to get the exact changes in this PR. Review ONLY the lines that were added or modified (lines starting with +). Do not review unchanged code.
 
             Check only the changed lines for: bugs, security issues, missing error handling, performance problems.
@@ -43,3 +40,7 @@ jobs:
           claude_args: |
             --max-turns 10
             --append-system-prompt "You are a code reviewer for a .NET 8 + React project called TravelGuide. Focus ONLY on the diff — changed lines in this PR. Do not review the entire codebase. Be concise and specific."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
