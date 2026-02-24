@@ -3,19 +3,20 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TravelGuideApi.Application.Features.Budget.Queries.Calculate;
 using TravelGuideApi.Application.Interfaces;
 using TravelGuideApi.Domain.Entities;
+using TravelGuideApi.Domain.Interfaces;
 
 namespace TravelGuideApi.Application.UnitTests.Features.Budget;
 
 [TestFixture]
 public class BudgetCalculateQueryHandlerTests
 {
-    private Mock<IExchangeRateCache> _exchangeRateCacheMock = null!;
+    private Mock<IExchangeRateApiService> _exchangeRateApiServiceMock = null!;
+    private Mock<ICountryApiService> _countryApiServiceMock = null!;
     private Mock<ICountryCache> _countryCacheMock = null!;
     private Mock<ILogger<BudgetCalculateQueryHandler>> _loggerMock = null!;
     private BudgetCalculateQueryHandler _handler = null!;
@@ -23,12 +24,14 @@ public class BudgetCalculateQueryHandlerTests
     [SetUp]
     public void Setup()
     {
-        _exchangeRateCacheMock = new Mock<IExchangeRateCache>();
+        _exchangeRateApiServiceMock = new Mock<IExchangeRateApiService>();
+        _countryApiServiceMock = new Mock<ICountryApiService>();
         _countryCacheMock = new Mock<ICountryCache>();
         _loggerMock = new Mock<ILogger<BudgetCalculateQueryHandler>>();
 
         _handler = new BudgetCalculateQueryHandler(
-            _exchangeRateCacheMock.Object,
+            _exchangeRateApiServiceMock.Object,
+            _countryApiServiceMock.Object,
             _countryCacheMock.Object,
             _loggerMock.Object);
     }
@@ -40,10 +43,9 @@ public class BudgetCalculateQueryHandlerTests
     {
         // Arrange
         var gbCountry = CreateCountry("GB", "United Kingdom", "GBP");
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.79m };
 
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
 
         var query = new BudgetCalculateQuery("USD", 100m, 7, ["GB"]);
 
@@ -73,17 +75,12 @@ public class BudgetCalculateQueryHandlerTests
         var jpCountry = CreateCountry("JP", "Japan", "JPY");
         var inCountry = CreateCountry("IN", "India", "INR");
 
-        var rates = new Dictionary<string, decimal>
-        {
-            ["GBP"] = 0.79m,
-            ["JPY"] = 149.5m,
-            ["INR"] = 83.12m
-        };
-
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("JP")).ReturnsAsync(jpCountry);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("IN")).ReturnsAsync(inCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "JPY")).ReturnsAsync(149.5m);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "INR")).ReturnsAsync(83.12m);
 
         var query = new BudgetCalculateQuery("USD", 50m, 10, ["GB", "JP", "IN"]);
 
@@ -105,17 +102,12 @@ public class BudgetCalculateQueryHandlerTests
         var jpCountry = CreateCountry("JP", "Japan", "JPY");
         var inCountry = CreateCountry("IN", "India", "INR");
 
-        var rates = new Dictionary<string, decimal>
-        {
-            ["GBP"] = 0.79m,
-            ["JPY"] = 149.5m,
-            ["INR"] = 83.12m
-        };
-
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("JP")).ReturnsAsync(jpCountry);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("IN")).ReturnsAsync(inCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "JPY")).ReturnsAsync(149.5m);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "INR")).ReturnsAsync(83.12m);
 
         var query = new BudgetCalculateQuery("USD", 50m, 10, ["GB", "JP", "IN"]);
 
@@ -142,49 +134,11 @@ public class BudgetCalculateQueryHandlerTests
     #region Error Tests
 
     [Test]
-    public async Task Handle_MissingRateForDestinationCurrency_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var frCountry = CreateCountry("FR", "France", "EUR");
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.79m }; // EUR not included
-
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
-        _countryCacheMock.Setup(c => c.GetByCodeAsync("FR")).ReturnsAsync(frCountry);
-
-        var query = new BudgetCalculateQuery("USD", 100m, 5, ["FR"]);
-
-        // Act
-        Func<Task> act = () => _handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*EUR*");
-    }
-
-    [Test]
-    public async Task Handle_NullRatesFromCache_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync((Dictionary<string, decimal>?)null);
-
-        var query = new BudgetCalculateQuery("USD", 100m, 5, ["GB"]);
-
-        // Act
-        Func<Task> act = () => _handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*USD*");
-    }
-
-    [Test]
     public async Task Handle_UnknownCountryCode_ThrowsArgumentException()
     {
         // Arrange
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.79m };
-
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("XX")).ReturnsAsync((CountryEntity?)null);
+        _countryApiServiceMock.Setup(s => s.GetCountryByCodeAsync("XX")).ReturnsAsync((CountryEntity?)null);
 
         var query = new BudgetCalculateQuery("USD", 100m, 5, ["XX"]);
 
@@ -196,6 +150,27 @@ public class BudgetCalculateQueryHandlerTests
             .WithMessage("*XX*");
     }
 
+    [Test]
+    public async Task Handle_CountryCacheMiss_FallsBackToApiService()
+    {
+        // Arrange
+        var gbCountry = CreateCountry("GB", "United Kingdom", "GBP");
+
+        _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync((CountryEntity?)null);
+        _countryApiServiceMock.Setup(s => s.GetCountryByCodeAsync("GB")).ReturnsAsync(gbCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
+
+        var query = new BudgetCalculateQuery("USD", 100m, 7, ["GB"]);
+
+        // Act
+        var results = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        results.Should().HaveCount(1);
+        results[0].CountryCode.Should().Be("GB");
+        _countryApiServiceMock.Verify(s => s.GetCountryByCodeAsync("GB"), Times.Once);
+    }
+
     #endregion
 
     #region DataFreshness and Timestamp Tests
@@ -205,10 +180,9 @@ public class BudgetCalculateQueryHandlerTests
     {
         // Arrange
         var gbCountry = CreateCountry("GB", "United Kingdom", "GBP");
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.79m };
 
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
 
         var query = new BudgetCalculateQuery("USD", 100m, 7, ["GB"]);
 
@@ -224,10 +198,9 @@ public class BudgetCalculateQueryHandlerTests
     {
         // Arrange
         var gbCountry = CreateCountry("GB", "United Kingdom", "GBP");
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.79m };
 
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.79m);
 
         var query = new BudgetCalculateQuery("USD", 100m, 7, ["GB"]);
         var beforeCall = DateTime.UtcNow;
@@ -250,10 +223,9 @@ public class BudgetCalculateQueryHandlerTests
     {
         // Arrange
         var gbCountry = CreateCountry("GB", "United Kingdom", "GBP");
-        var rates = new Dictionary<string, decimal> { ["GBP"] = 0.7912345678m };
 
-        _exchangeRateCacheMock.Setup(c => c.GetRatesAsync("USD")).ReturnsAsync(rates);
         _countryCacheMock.Setup(c => c.GetByCodeAsync("GB")).ReturnsAsync(gbCountry);
+        _exchangeRateApiServiceMock.Setup(s => s.GetExchangeRateAsync("USD", "GBP")).ReturnsAsync(0.7912345678m);
 
         var query = new BudgetCalculateQuery("USD", 100m, 7, ["GB"]);
 

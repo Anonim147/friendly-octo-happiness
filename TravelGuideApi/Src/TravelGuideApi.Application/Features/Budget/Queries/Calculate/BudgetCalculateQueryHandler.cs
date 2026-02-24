@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using TravelGuideApi.Application.Interfaces;
+using TravelGuideApi.Domain.Interfaces;
 using TravelGuideApi.Domain.Models;
 
 namespace TravelGuideApi.Application.Features.Budget.Queries.Calculate;
@@ -13,12 +14,14 @@ namespace TravelGuideApi.Application.Features.Budget.Queries.Calculate;
 /// Handles <see cref="BudgetCalculateQuery"/> queries.
 /// </summary>
 public class BudgetCalculateQueryHandler(
-    IExchangeRateCache exchangeRateCache,
+    IExchangeRateApiService exchangeRateApiService,
+    ICountryApiService countryApiService,
     ICountryCache countryCache,
     ILogger<BudgetCalculateQueryHandler> logger)
     : IRequestHandler<BudgetCalculateQuery, List<BudgetCalculationResult>>
 {
-    private readonly IExchangeRateCache _exchangeRateCache = exchangeRateCache;
+    private readonly IExchangeRateApiService _exchangeRateApiService = exchangeRateApiService;
+    private readonly ICountryApiService _countryApiService = countryApiService;
     private readonly ICountryCache _countryCache = countryCache;
     private readonly ILogger<BudgetCalculateQueryHandler> _logger = logger;
 
@@ -32,31 +35,22 @@ public class BudgetCalculateQueryHandler(
             request.HomeCurrency,
             request.DestinationCountries.Count);
 
-        Dictionary<string, decimal>? rates = await _exchangeRateCache.GetRatesAsync(request.HomeCurrency);
-
-        if (rates == null)
-        {
-            throw new InvalidOperationException(
-                $"Exchange rates not available for currency: {request.HomeCurrency}");
-        }
-
         decimal totalBudgetHome = request.DailyBudget * request.TripDays;
         var results = new List<BudgetCalculationResult>();
 
         foreach (string countryCode in request.DestinationCountries)
         {
-            var country = await _countryCache.GetByCodeAsync(countryCode);
+            var country = await _countryCache.GetByCodeAsync(countryCode)
+                ?? await _countryApiService.GetCountryByCodeAsync(countryCode);
 
             if (country == null)
             {
                 throw new ArgumentException($"Country not found: {countryCode}");
             }
 
-            if (!rates.TryGetValue(country.CurrencyCode, out decimal rate))
-            {
-                throw new InvalidOperationException(
-                    $"Exchange rate not available for currency: {country.CurrencyCode}");
-            }
+            decimal rate = await _exchangeRateApiService.GetExchangeRateAsync(
+                request.HomeCurrency,
+                country.CurrencyCode);
 
             results.Add(new BudgetCalculationResult
             {
