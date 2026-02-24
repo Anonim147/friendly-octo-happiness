@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/friendly-octo-happiness/static/css/main.cca27999.css",
+    "main.js": "/friendly-octo-happiness/static/js/main.d16c322f.js",
+    "index.html": "/friendly-octo-happiness/index.html",
+    "main.cca27999.css.map": "/friendly-octo-happiness/static/css/main.cca27999.css.map",
+    "main.d16c322f.js.map": "/friendly-octo-happiness/static/js/main.d16c322f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cca27999.css",
+    "static/js/main.d16c322f.js"
+  ]
+}
