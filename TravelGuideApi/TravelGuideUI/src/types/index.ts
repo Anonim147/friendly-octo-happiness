@@ -29,6 +29,11 @@ export interface BudgetCalculateRequest {
   destinationCountries: string[];
 }
 
+export interface ExchangeRateDataPoint {
+  date: string;
+  rate: number;
+}
+
 export interface BudgetCalculationResult {
   countryCode: string;
   countryName: string;

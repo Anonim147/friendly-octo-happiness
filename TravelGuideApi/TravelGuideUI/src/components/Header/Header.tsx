@@ -1,7 +1,7 @@
 import React from 'react';
 import './Header.css';
 
-type View = 'comparison' | 'budget';
+type View = 'comparison' | 'budget' | 'history';
 
 interface HeaderProps {
   activeView: View;
@@ -34,6 +34,12 @@ const Header: React.FC<HeaderProps> = ({ activeView, onNavigate }) => {
             onClick={() => onNavigate('budget')}
           >
             Trip Budget Calculator
+          </button>
+          <button
+            className={`nav-link ${activeView === 'history' ? 'nav-link-active' : ''}`}
+            onClick={() => onNavigate('history')}
+          >
+            Historical Rates
           </button>
         </nav>
       </div>
