@@ -1,4 +1,4 @@
-import { BudgetCalculateRequest, BudgetCalculationResult, Country, CurrencyComparisonRequest, CurrencyComparisonResult } from '../types';
+import { BudgetCalculateRequest, BudgetCalculationResult, Country, CurrencyComparisonRequest, CurrencyComparisonResult, ExchangeRateDataPoint } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
@@ -36,6 +36,11 @@ class ApiService {
       body: JSON.stringify(request),
     });
     return this.handleResponse<BudgetCalculationResult[]>(response);
+  }
+
+  async getHistoricalRates(from: string, to: string, days: number): Promise<ExchangeRateDataPoint[]> {
+    const response = await fetch(`${API_BASE_URL}/history/rates?from=${from}&to=${to}&days=${days}`);
+    return this.handleResponse<ExchangeRateDataPoint[]>(response);
   }
 }
 

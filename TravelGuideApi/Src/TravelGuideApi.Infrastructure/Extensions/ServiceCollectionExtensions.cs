@@ -60,5 +60,6 @@ public static class ServiceCollectionExtensions
         // Register HttpClient for external API services
         services.AddHttpClient<ICountryApiService, CountryApiService>();
         services.AddHttpClient<IExchangeRateApiService, ExchangeRateApiService>();
+        services.AddHttpClient<IExchangeRateHistoryService, ExchangeRateHistoryService>();
     }
 }
